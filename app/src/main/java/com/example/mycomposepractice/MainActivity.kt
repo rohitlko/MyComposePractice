@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,56 +39,31 @@ class MainActivity : ComponentActivity() {
 
 }
 
-//@Composable
-//fun MyScreenContent() {
-//    Column {
-//        Greeting("Android")
-//        Divider(color = Color.Black)
-//        Greeting("there")
-//        Divider(color = Color.Black)
-//        Greeting("world")
-//
-//    }
-//}
-
-//@Preview
-
-//@Composable
-////fun MyScreenContent(names: List<String> = listOf("rohit","mohit", "ajay", "tom")) {
-//fun MyScreenContent(names: List<String> = List(1000) { "Hello Android #$it" }) {
-//
-//    val counterState = remember { mutableStateOf(0) }
-//
-//
-//    Column(modifier = Modifier.fillMaxHeight()) {
-//        Column(modifier = Modifier.weight(1f)) {
-//            for (name in names) {
-//                Greeting(name = name)
-//                Divider(color = Color.Black)
-//            }
-//        }
-//        Divider(color = Color.Transparent, thickness = 33.dp)
-//        Counter(
-//            count = counterState.value,
-//            updateCount = { newCount ->
-//                counterState.value = newCount
-//            }
-//        )
-//    }
-//}
-
 @Composable
-fun MyScreenContent(names: List<String> = List(1000) { "Hello Android #$it" }) {
-    val counterState = remember { mutableStateOf(0) }
+fun MyScreenContent(
+    names: List<String> = List(1000) { " Android #$it" },
+    desc: List<String> = listOf("rohit", "mohit", "ajay", "tom")
+) {
+    var counterState by remember {
+        mutableStateOf(0)
+    }
 
     Column(modifier = Modifier.fillMaxHeight()) {
-        NameList(names, Modifier.weight(1f))
+        NameList(names, Modifier.weight(1f), desc)
         Counter(
-            count = counterState.value,
+            count = counterState,
             updateCount = { newCount ->
-                counterState.value = newCount
+                counterState = newCount
             }
+
         )
+
+
+
+        if (counterState > 5 ){
+
+            Text(text = "I love count")
+        }
     }
 }
 
@@ -94,25 +71,26 @@ fun MyScreenContent(names: List<String> = List(1000) { "Hello Android #$it" }) {
 fun Counter(count: Int, updateCount: (Int) -> Unit) {
 
     // val count = remember { mutableStateOf(0) }
-
     Button(
         onClick = { updateCount(count + 1) },
-        modifier = Modifier.padding(24.dp),
+        modifier = Modifier
+            .padding(24.dp)
+            .fillMaxWidth(1f),
 
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = if (count > 5) Color.Green else Color.White
+            backgroundColor = if (count > 5) Color.Green else MaterialTheme.colors.primary
         )
-
     ) {
         Text("I've been clicked $count times")
     }
 }
 
 @Composable
-fun NameList(names: List<String>, modifier: Modifier = Modifier) {
+fun NameList(names: List<String>, modifier: Modifier = Modifier, descs: List<String>) {
     LazyColumn(modifier = modifier) {
         items(items = names) { name ->
             Greeting(name = name)
+            Greeting2(desc = "descs")
             Divider(color = Color.Black)
         }
     }
@@ -121,7 +99,8 @@ fun NameList(names: List<String>, modifier: Modifier = Modifier) {
 @Composable
 fun MyApp(content: @Composable () -> Unit) {
     MyComposePracticeTheme {
-        Surface(color = Color.Yellow) {
+        //Surface(color = Color.Yellow) {
+        Surface(color = MaterialTheme.colors.background) {
             // Greeting(name = "Android")
             content()
         }
@@ -131,22 +110,41 @@ fun MyApp(content: @Composable () -> Unit) {
 @Composable
 fun Greeting(name: String) {
     var isSelected by remember { mutableStateOf(false) }
-    val backgroundColor by animateColorAsState(if (isSelected) Color.Red else Color.Transparent)
+    val backgroundColor by animateColorAsState(
+        if (isSelected) MaterialTheme.colors.primary else Color.Transparent,
+        animationSpec = tween(durationMillis = 4000)
+    )
 
 
-    Text(text = "Hello $name!", modifier = Modifier
-        .padding(24.dp)
-        .background(color = backgroundColor)
-        .clickable(onClick = { isSelected = !isSelected })
+    Text(
+        text = "Hello $name!", modifier = Modifier
+            .padding(24.dp)
+            .background(color = backgroundColor)
+            .clickable(onClick = { isSelected = !isSelected })
     )
 
 }
 
-//@Preview
+@Composable
+fun Greeting2(desc: String) {
+    Text(
+        text = "$desc", modifier = Modifier
+            .padding(end = 24.dp)
+            .padding(start = 24.dp)
+            .padding(bottom = 6.dp)
+
+    )
+}
+
 @Composable
 fun DefaultPreview() {
     MyApp {
-        Greeting("Android")
+        Column() {
+            Greeting("Android")
+            Greeting2("this is rohit")
+        }
+//        Greeting("Android")
+//        Greeting2("this is rohit")
     }
 }
 
